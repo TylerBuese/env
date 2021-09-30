@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 
+void writeLetter(const char *letter, int posx, int posy, int fontSize);
+
 int main() 
 {
     const int windowWidth {1280};
@@ -12,10 +14,8 @@ int main()
     InitWindow(windowWidth, windowHeight, title);
     char name[100] = "\0";
     int letterCount {0};
-    
-    
-
-    
+    int posX {20};
+    int posY {20};
 
     while (!WindowShouldClose())
     {
@@ -25,12 +25,23 @@ int main()
         {
             int key = GetCharPressed();
             name[letterCount] = (char)key;
-            name[letterCount+1] = '\0';
-            DrawText(name/*std::to_string(key).c_str()*/, 20, 20, 50, BLUE);
+            posX += 20;
+            //posY += 20;
+            if (posX >= windowWidth-20)
+            {
+                posY += 20;
+                posX = 20;
+            }
 
+            
         }
 
-        DrawText(name, 20, 20, 50, BLUE);
+         //DrawText(&name[letterCount], posX, posY, 50, BLUE);
+
+         writeLetter(&name[letterCount], posX, posY, 50);
+         
+
+
 
 
         ClearBackground(BLACK);
@@ -40,4 +51,9 @@ int main()
     CloseWindow();
 
     return 0;
+}
+
+void writeLetter(const char *letter, int posx, int posy, int fontSize) 
+{
+    DrawText(letter, posx, posy, fontSize, BLUE);
 }
