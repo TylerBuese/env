@@ -96,7 +96,9 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib [text] example - input box");
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
+    char prevLines [32] = "\0";
     int letterCount = 0;
+    int keysPressed {0};
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     bool mouseOnText = false;
@@ -138,10 +140,7 @@ int main(void)
                 name[letterCount] = (char)key;
                 name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
                 letterCount++;
-                posX += 10;
-                
-
-                
+                keysPressed++;
             }
 
             key = GetCharPressed(); // Check next character in the queue
@@ -175,8 +174,20 @@ int main(void)
         else
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
         
-        DrawText(name, textBox.x + 5, textBox.y + 8, 40, MAROON);
-        DrawText(std::to_string(textBox.x).c_str(), 500, 500, 50, RED);
+        DrawText(name, posX, posY + 8, 40, MAROON);
+        int j = 0;
+        if (keysPressed >= 5)
+        {
+            for (int i = 0; i < letterCount; i++)
+            {
+                prevLines[j] += name[i];
+                DrawText(prevLines, 20, posY, 50, RED);
+            }
+
+            posY += 20;
+            keysPressed = 0;
+
+        }
 
         if (mouseOnText)
         {
