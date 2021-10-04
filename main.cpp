@@ -83,6 +83,7 @@
 
 #include "raylib.h"
 #include "string"
+#include "vector"
 
 #define MAX_INPUT_CHARS 1024
 
@@ -96,7 +97,7 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib [text] example - input box");
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
-    char prevLines [32] = "\0";
+    std::vector<char> prevLines {};
     int letterCount = 0;
     int keysPressed {0};
 
@@ -141,6 +142,11 @@ int main(void)
                 name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
                 letterCount++;
                 keysPressed++;
+
+                if (keysPressed > 10)
+                {
+                    prevLines.push_back(name[2]);
+                }
             }
 
             key = GetCharPressed(); // Check next character in the queue
@@ -175,19 +181,17 @@ int main(void)
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
         
         DrawText(name, posX, posY + 8, 40, MAROON);
-        int j = 0;
-        if (keysPressed >= 5)
+        if (keysPressed > 10)
         {
-            for (int i = 0; i < letterCount; i++)
-            {
-                prevLines[j] += name[i];
-                DrawText(prevLines, 20, posY, 50, RED);
-            }
-
-            posY += 20;
-            keysPressed = 0;
-
+            const char prevLine {*name};
+            DrawText(&prevLine, posX, posY + 20, 40, MAROON);
         }
+
+        //const char prevLines[] = {'A', 'B', 'C'}; //gwhen you call the array, it gives you everything up to the null term. i.e., prevLines[1] gives you b,c -not a
+
+
+        
+        
 
         if (mouseOnText)
         {
