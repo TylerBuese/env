@@ -97,7 +97,7 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib [text] example - input box");
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
-    std::vector<char> prevLines {};
+    char prevLine[1024] {*name};
     int letterCount = 0;
     int keysPressed {0};
 
@@ -110,6 +110,7 @@ int main(void)
 
     float posX {20};
     float posY {20};
+    bool lineOne {false};
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -143,10 +144,11 @@ int main(void)
                 letterCount++;
                 keysPressed++;
 
-                if (keysPressed > 10)
-                {
-                    prevLines.push_back(name[2]);
-                }
+
+                // if (keysPressed > 10)
+                // {
+                //     const char prevLine {*name};
+                // }
             }
 
             key = GetCharPressed(); // Check next character in the queue
@@ -157,6 +159,7 @@ int main(void)
         if (IsKeyPressed(KEY_BACKSPACE))
         {
             letterCount--;
+            keysPressed--;
             if (letterCount < 0)
                 letterCount = 0;
             name[letterCount] = '\0';
@@ -180,26 +183,40 @@ int main(void)
         else
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
         
-        DrawText(name, posX, posY + 8, 40, MAROON);
-        if (keysPressed > 10)
+        DrawText(name, 40, 670, 40, MAROON);
+        if (IsKeyDown(KEY_ENTER))
         {
-            const char prevLine {*name};
-            DrawText(&prevLine, posX, posY + 20, 40, MAROON);
+            lineOne = true;
+            for (int i = 0; i < keysPressed; i++)
+            {
+                prevLine[i] += name[i];
+            }
+
+            for (int i = 0; i < keysPressed; i++)
+            {
+                name[i] = '\0';
+            }
+
+            keysPressed = 0;
+            // DrawText(&prevLine[0], posX, posY + 40, 40, MAROON);   
         }
 
+        if (lineOne)
+        {
+            DrawText(prevLine, screenWidth / 64, posY, 40, MAROON);
+        }
+        
+        
+
         //const char prevLines[] = {'A', 'B', 'C'}; //gwhen you call the array, it gives you everything up to the null term. i.e., prevLines[1] gives you b,c -not a
-
-
-        
-        
-
         if (mouseOnText)
         {
             if (letterCount < MAX_INPUT_CHARS)
             {
                 // Draw blinking underscore char
                 if (((framesCounter / 20) % 2) == 0)
-                    DrawText("_", textBox.x + 8 + MeasureText(name, 40), textBox.y + 12, 40, MAROON);
+                    // DrawText("_", textBox.x + 8 + MeasureText(name, 40), textBox.y + 12, 40, MAROON);
+                    DrawText(">", 20, 670, 40, MAROON);
             }
             else
                 DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
