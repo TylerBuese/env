@@ -15,11 +15,14 @@ int main(void)
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
     char prevLine[1024] {*name};
+    char prevLine2[300] {*name};
     int sizeOfLines {32};
     bool lines[sizeOfLines] {false};
     int letterCount = 0;
     int keysPressed {0};
     int index {0};
+    int oldItems {0};
+    char line[MAX_INPUT_CHARS] {'\0'};
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     bool mouseOnText = false;
@@ -109,14 +112,18 @@ int main(void)
         if (IsKeyPressed(KEY_ENTER))
         {
             lines[index] = true;
+            //adds all items in name to prevLine
             for (int i = 0; i < keysPressed; i++)
             {
                 prevLine[i] += name[i];
+                oldItems = keysPressed;
             }
 
+            //reset terminal prompt
             for (int i = 0; i < keysPressed; i++)
             {
                 name[i] = '\0';
+                
             }
 
             keysPressed = 0;
@@ -128,9 +135,12 @@ int main(void)
         if (lines[index])
         {
             DrawText(prevLine, screenWidth / 64, posY, 40, MAROON);
+            DrawText(prevLine, screenWidth / 64, posY + 40, 40, MAROON);
         }
 
-        DrawText(std::to_string(index).c_str(), screenWidth / 64, posY, 40, MAROON);
+
+
+        //DrawText(std::to_string(index).c_str(), screenWidth / 64, posY, 40, MAROON);
         
         
 
