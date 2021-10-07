@@ -15,7 +15,7 @@ int main(void)
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
     char prevLine[1024] {*name};
-    char printedLines[32][1024];
+    char printedLines[1024][32];
     int sizeOfLines {32};
     bool lines[sizeOfLines] {false};
     int letterCount = 0;
@@ -121,19 +121,23 @@ int main(void)
             {
                 name[i] = '\0';
             }
-
+            oldItems = keysPressed;
             keysPressed = 0;
             letterCount = 0;
             
             // DrawText(&prevLine[0], posX, posY + 40, 40, MAROON);   
         }
 
-        if (lines[index])
+        
+        int j = 0;
+        //DrawText(&prevLine[0], screenWidth / 64, posY, 40, MAROON);
+        for (int i = 0; i < oldItems + 1; i++)
         {
-            //DrawText(&prevLine[0], screenWidth / 64, posY, 40, MAROON);
-            DrawText(&printedLines[3][0], screenWidth / 64, posY, 40, MAROON);
-                                 
+            DrawText(&printedLines[i][0], screenWidth / 64 + j, posY, 40, MAROON);
+            j += 25;
         }
+                                 
+        
 
 
 
