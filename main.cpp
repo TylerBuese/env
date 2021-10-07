@@ -15,14 +15,15 @@ int main(void)
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
     char prevLine[1024] {*name};
-    char prevLine2[300] {*name};
+    char printedLines[32][1024];
     int sizeOfLines {32};
     bool lines[sizeOfLines] {false};
     int letterCount = 0;
     int keysPressed {0};
     int index {0};
     int oldItems {0};
-    char line[MAX_INPUT_CHARS] {'\0'};
+    int lineItem {0};
+
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     bool mouseOnText = false;
@@ -66,12 +67,6 @@ int main(void)
                 name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
                 letterCount++;
                 keysPressed++;
-
-
-                // if (keysPressed > 10)
-                // {
-                //     const char prevLine {*name};
-                // }
             }
 
             key = GetCharPressed(); // Check next character in the queue
@@ -116,14 +111,15 @@ int main(void)
             for (int i = 0; i < keysPressed; i++)
             {
                 prevLine[i] += name[i];
-                oldItems = keysPressed;
+                printedLines[i][0] += name[i]; 
             }
+            printedLines[keysPressed + 1][0] = '\0';
+
 
             //reset terminal prompt
             for (int i = 0; i < keysPressed; i++)
             {
                 name[i] = '\0';
-                
             }
 
             keysPressed = 0;
@@ -134,8 +130,9 @@ int main(void)
 
         if (lines[index])
         {
-            DrawText(prevLine, screenWidth / 64, posY, 40, MAROON);
-            DrawText(prevLine, screenWidth / 64, posY + 40, 40, MAROON);
+            //DrawText(&prevLine[0], screenWidth / 64, posY, 40, MAROON);
+            DrawText(&printedLines[3][0], screenWidth / 64, posY, 40, MAROON);
+                                 
         }
 
 
