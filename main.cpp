@@ -4,6 +4,10 @@
 
 #define MAX_INPUT_CHARS 1024
 
+struct commands {
+    const char ping[5] = "Ping";
+};
+
 int main(void)
 {
     // Initialization
@@ -14,15 +18,10 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib [text] example - input box");
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
-    char prevLine[1024]{*name};
     char printedLines[32][1024];
-    int sizeOfLines{32};
-    bool lines[sizeOfLines]{false};
     int letterCount = 0;
     int keysPressed{0};
     int index{0};
-    int oldItems{0};
-    bool triggered{false};
     int x = 0;
     int y = 0;
     const char sitOne[14] = "Hello, world!";
@@ -33,10 +32,6 @@ int main(void)
     int framesCounter = 0;
 
     SetTargetFPS(30); // Set our game to run at 10 frames-per-second
-
-    float posX{20};
-    float posY{20};
-    bool lineOne{false};
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -76,7 +71,7 @@ int main(void)
 
         // Get char pressed (unicode character) on the queue
 
-        if (IsKeyPressed(KEY_BACKSPACE))
+        if (IsKeyDown(KEY_BACKSPACE))
         {
             letterCount--;
             keysPressed--;
@@ -106,7 +101,6 @@ int main(void)
         DrawText(name, 40, 670, 40, MAROON);
         if (IsKeyPressed(KEY_ENTER))
         {
-            triggered = true;
             //adds all items in name to prevLine
             for (int i = 0; i < keysPressed; i++)
             {
@@ -118,7 +112,6 @@ int main(void)
             {
                 name[i] = '\0';
             }
-            oldItems = keysPressed;
             keysPressed = 0;
             letterCount = 0;
             index++;
@@ -129,7 +122,7 @@ int main(void)
             y = 30;
             DrawText(&printedLines[i][0], screenWidth / 64, y * (i + 1), 40, MAROON);
 
-            if (&printedLines[i][0] == sitOne)
+            if (&printedLines[i][0] == &sitOne[i])
             {
                 DrawText("Hello to you too!", 600 + x, y, 40, MAROON);       
             }
