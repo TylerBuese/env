@@ -4,8 +4,21 @@
 
 #define MAX_INPUT_CHARS 1024
 
-struct commands {
-    const char ping[5] = "Ping";
+struct commands
+{
+    void testPing(char text)
+    {
+        int sizeOfText{5};
+        const char ping[sizeOfText] = "Ping";
+        for (int i = 0; i > sizeOfText; i++)
+        {
+        }
+    }
+};
+
+struct upgrades
+{
+    
 };
 
 int main(void)
@@ -15,7 +28,12 @@ int main(void)
     const int screenWidth = 1280;
     const int screenHeight = 720;
 
-    InitWindow(screenWidth, screenHeight, "raylib [text] example - input box");
+    InitWindow(screenWidth, screenHeight, "$env:");
+    if (IsKeyPressed(KEY_LEFT_ALT) && IsKeyPressed(KEY_ENTER))
+    {
+        ToggleFullscreen();
+    }
+        
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
     char printedLines[32][1024];
@@ -24,7 +42,7 @@ int main(void)
     int index{0};
     int x = 0;
     int y = 0;
-    const char sitOne[14] = "Hello, world!";
+    char test[5] = "test";
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     bool mouseOnText = false;
@@ -71,13 +89,28 @@ int main(void)
 
         // Get char pressed (unicode character) on the queue
 
-        if (IsKeyDown(KEY_BACKSPACE))
+        if (IsKeyPressed(KEY_BACKSPACE))
         {
+
             letterCount--;
             keysPressed--;
             if (letterCount < 0)
                 letterCount = 0;
             name[letterCount] = '\0';
+        }
+
+        if (IsKeyPressed(KEY_BACKSPACE) && IsKeyDown(KEY_LEFT_CONTROL))
+        {
+            
+            for (int i = 0; i < letterCount; i++)
+            {
+                letterCount -= letterCount;
+                keysPressed -= keysPressed;
+                if (letterCount < 0)
+                    letterCount = 0;
+                name[0] = '\0';
+            }
+            
         }
 
         if (mouseOnText)
@@ -116,15 +149,15 @@ int main(void)
             letterCount = 0;
             index++;
         }
-
+        std::string testString = &test[0];
         for (int i = 0; i < index; i++)
         {
-            y = 30;
+            y = 32;
             DrawText(&printedLines[i][0], screenWidth / 64, y * (i + 1), 40, MAROON);
-
-            if (&printedLines[i][0] == &sitOne[i])
+            std::string userString = &printedLines[i][0];
+            if (userString == testString)
             {
-                DrawText("Hello to you too!", 600 + x, y, 40, MAROON);       
+                DrawText("Hello to you too!", 600 + x, y, 40, MAROON);
             }
         }
 
