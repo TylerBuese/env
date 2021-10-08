@@ -25,6 +25,7 @@ int main(void)
     bool triggered{false};
     int x = 0;
     int y = 0;
+    const char sitOne[14] = "Hello, world!";
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     bool mouseOnText = false;
@@ -121,21 +122,18 @@ int main(void)
             keysPressed = 0;
             letterCount = 0;
             index++;
-            y += 25;
         }
 
-        if (triggered)
+        for (int i = 0; i < index; i++)
         {
-            //DrawText(&prevLine[0], screenWidth / 64, posY, 40, MAROON);
-            
-            for (int i = 0; i < index; i++)
-            {
-                DrawText(&printedLines[i][0], screenWidth / 64, y), 40, MAROON);
-            }
+            y = 30;
+            DrawText(&printedLines[i][0], screenWidth / 64, y * (i + 1), 40, MAROON);
 
+            if (&printedLines[i][0] == sitOne)
+            {
+                DrawText("Hello to you too!", 600 + x, y, 40, MAROON);       
+            }
         }
-        //DrawText(&printedLines[index][0], screenWidth / 64 + x, y, 40, MAROON);
-        DrawText(std::to_string(index).c_str(), 600, posY, 40, MAROON);
 
         //const char prevLines[] = {'A', 'B', 'C'}; //gwhen you call the array, it gives you everything up to the null term. i.e., prevLines[1] gives you b,c -not a
         if (mouseOnText)
