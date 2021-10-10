@@ -4,21 +4,55 @@
 
 #define MAX_INPUT_CHARS 1024
 
-struct commands
-{
-    void testPing(char text)
+struct Commands
+{ 
+    void ping() 
     {
-        int sizeOfText{5};
-        const char ping[sizeOfText] = "Ping";
-        for (int i = 0; i > sizeOfText; i++)
+
+    }
+
+    void testCommand(std::string inputText, float x, float y)
+    {
+        int sizeOfPing{5};
+        int numberOfCommands{2};
+        bool foundCommand{false};
+        const char commands[50][1000]{
+            "ping",
+            ""};
+        std::string pingString = &commands[0][0]; //ping
+
+        for (int i = 0; i < numberOfCommands; i++) //loops through all commands, if it finds one, executes
         {
+            /*start commands*/
+            std::string ping = &commands[0][0]; //ping command
+            /*end commands*/
+            if (inputText == ping)
+            {
+                DrawText("Pinging...", x, y, 30, MAROON);
+            } else
+            {
+                std::string errorText = "The command \"" + inputText + "\" was not found. Please check capitalization/spelling and try again.";
+                DrawText(errorText.c_str(), x, y, 30, MAROON);
+                int text = MeasureText(errorText.c_str(), 30);
+                if (text > GetScreenWidth() - 20)
+                {
+                    for (int i = errorText.length(); i > errorText.length(); i--)
+                    {
+                        std::string tempText = errorText;
+                        if (MeasureText(errorText.c_str(), 30) > GetScreenWidth() - 20)
+                        {
+                            
+                        }
+                    }
+                }
+            }
         }
     }
 };
 
-struct upgrades
+struct Upgrades
 {
-    
+
 };
 
 int main(void)
@@ -29,11 +63,6 @@ int main(void)
     const int screenHeight = 720;
 
     InitWindow(screenWidth, screenHeight, "$env:");
-    if (IsKeyPressed(KEY_LEFT_ALT) && IsKeyPressed(KEY_ENTER))
-    {
-        ToggleFullscreen();
-    }
-        
 
     char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
     char printedLines[32][1024];
@@ -43,8 +72,12 @@ int main(void)
     int x = 0;
     int y = 0;
     char test[5] = "test";
+    //screen altering functions
+    const char clear[6] = "clear";
+    bool clearScreen{false};
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
+    Rectangle OuterBox = {0, 0, screenWidth, screenHeight};
     bool mouseOnText = false;
 
     int framesCounter = 0;
@@ -55,6 +88,10 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
+        if (IsKeyPressed(KEY_LEFT_ALT) && IsKeyDown(KEY_ENTER))
+        {
+            ToggleFullscreen();
+        }
         // Update
         //----------------------------------------------------------------------------------
         if (CheckCollisionPointRec(GetMousePosition(), textBox))
@@ -101,7 +138,7 @@ int main(void)
 
         if (IsKeyPressed(KEY_BACKSPACE) && IsKeyDown(KEY_LEFT_CONTROL))
         {
-            
+
             for (int i = 0; i < letterCount; i++)
             {
                 letterCount -= letterCount;
@@ -110,7 +147,6 @@ int main(void)
                     letterCount = 0;
                 name[0] = '\0';
             }
-            
         }
 
         if (mouseOnText)
@@ -124,7 +160,7 @@ int main(void)
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
-
+        DrawRectangleRec(OuterBox, BLACK);
         DrawRectangleRec(textBox, LIGHTGRAY);
         if (mouseOnText)
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, RED);
@@ -132,7 +168,7 @@ int main(void)
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
 
         DrawText(name, 40, 670, 40, MAROON);
-        if (IsKeyPressed(KEY_ENTER))
+        if (IsKeyPressed(KEY_ENTER) && !clearScreen)
         {
             //adds all items in name to prevLine
             for (int i = 0; i < keysPressed; i++)
@@ -150,16 +186,22 @@ int main(void)
             index++;
         }
         std::string testString = &test[0];
+        Commands command;
         for (int i = 0; i < index; i++)
         {
             y = 32;
-            DrawText(&printedLines[i][0], screenWidth / 64, y * (i + 1), 40, MAROON);
+            
+            //DrawText(&printedLines[i][0], screenWidth / 64, y * (i + 1), 40, MAROON);
             std::string userString = &printedLines[i][0];
-            if (userString == testString)
+            if (userString == clear)
             {
-                DrawText("Hello to you too!", 600 + x, y, 40, MAROON);
+                clearScreen = true;
+            } else 
+            {
+                command.testCommand(userString, screenWidth / 64, y * (i + 1));
             }
         }
+
 
         //const char prevLines[] = {'A', 'B', 'C'}; //gwhen you call the array, it gives you everything up to the null term. i.e., prevLines[1] gives you b,c -not a
         if (mouseOnText)
@@ -168,11 +210,27 @@ int main(void)
             {
                 // Draw blinking underscore char
                 if (((framesCounter / 20) % 2) == 0)
-                    // DrawText("_", textBox.x + 8 + MeasureText(name, 40), textBox.y + 12, 40, MAROON);
+
                     DrawText(">", 20, 670, 40, MAROON);
             }
             else
                 DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
+        }
+
+        if (clearScreen)
+        {
+            for (int i= 0; i < index; i++)
+            {
+                std::string tempLine = &printedLines[i][0];
+                int numOfCharacters = tempLine.length();
+                for (int j = 0; i < numOfCharacters; j++)
+                {
+                    printedLines[i][j] = '\0';
+                }
+                
+            }
+            clearScreen = false;
+            index = 0;
         }
 
         EndDrawing();
@@ -183,7 +241,6 @@ int main(void)
     //--------------------------------------------------------------------------------------
     CloseWindow(); // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
-
     return 0;
 }
 
