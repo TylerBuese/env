@@ -3,12 +3,11 @@
 #include "vector"
 
 #define MAX_INPUT_CHARS 1024
-
+bool wordWrap {false};
 struct Commands
-{ 
-    void ping() 
+{
+    void ping()
     {
-
     }
 
     void testCommand(std::string inputText, float x, float y)
@@ -29,22 +28,33 @@ struct Commands
             if (inputText == ping)
             {
                 DrawText("Pinging...", x, y, 30, MAROON);
-            } else
+            }
+            else
             {
                 std::string errorText = "The command \"" + inputText + "\" was not found. Please check capitalization/spelling and try again.";
-                DrawText(errorText.c_str(), x, y, 30, MAROON);
-                int text = MeasureText(errorText.c_str(), 30);
+                std::string copyErrorText = errorText;
+                int j = errorText.length();
+                int text = MeasureText(errorText.c_str(), 20);
                 if (text > GetScreenWidth() - 20)
                 {
-                    for (int i = errorText.length(); i > errorText.length(); i--)
+                    std::string tempText = errorText;
+                    do
                     {
-                        std::string tempText = errorText;
-                        if (MeasureText(errorText.c_str(), 30) > GetScreenWidth() - 20)
+                        if (MeasureText(errorText.c_str(), 20) > GetScreenWidth() - 30)
                         {
-                            
+                            tempText[j - 1] = '\0';
+                            errorText = tempText;
+                            j -= 1;
                         }
-                    }
+                        else
+                        {
+                            break;
+                        }
+                    } while (true);
                 }
+                DrawText(&copyErrorText[j], x, y + 20, 20, MAROON);
+                DrawText(errorText.c_str(), x, y, 20, MAROON);
+                wordWrap = false;
             }
         }
     }
@@ -88,7 +98,7 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
-        if (IsKeyPressed(KEY_LEFT_ALT) && IsKeyDown(KEY_ENTER))
+        if (IsKeyDown(KEY_LEFT_ALT) && IsKeyDown(KEY_ENTER))
         {
             ToggleFullscreen();
         }
@@ -190,18 +200,18 @@ int main(void)
         for (int i = 0; i < index; i++)
         {
             y = 32;
-            
+
             //DrawText(&printedLines[i][0], screenWidth / 64, y * (i + 1), 40, MAROON);
             std::string userString = &printedLines[i][0];
             if (userString == clear)
             {
                 clearScreen = true;
-            } else 
+            }
+            else
             {
-                command.testCommand(userString, screenWidth / 64, y * (i + 1));
+                command.testCommand(userString, screenWidth / 64, y * (i + 1) );
             }
         }
-
 
         //const char prevLines[] = {'A', 'B', 'C'}; //gwhen you call the array, it gives you everything up to the null term. i.e., prevLines[1] gives you b,c -not a
         if (mouseOnText)
@@ -219,7 +229,7 @@ int main(void)
 
         if (clearScreen)
         {
-            for (int i= 0; i < index; i++)
+            for (int i = 0; i < index; i++)
             {
                 std::string tempLine = &printedLines[i][0];
                 int numOfCharacters = tempLine.length();
@@ -227,7 +237,6 @@ int main(void)
                 {
                     printedLines[i][j] = '\0';
                 }
-                
             }
             clearScreen = false;
             index = 0;
