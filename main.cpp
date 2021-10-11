@@ -82,6 +82,7 @@ int main(void)
     int x = 0;
     int y = 0;
     char test[5] = "test";
+    bool wordWrapped {false};
     //screen altering functions
     const char clear[6] = "clear";
     bool clearScreen{false};
@@ -178,7 +179,7 @@ int main(void)
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
 
         DrawText(name, 40, 670, 40, MAROON);
-        if (IsKeyPressed(KEY_ENTER) && !clearScreen)
+        if (IsKeyPressed(KEY_ENTER) && !clearScreen && !IsKeyDown(KEY_LEFT_ALT))
         {
             //adds all items in name to prevLine
             for (int i = 0; i < keysPressed; i++)
@@ -200,16 +201,13 @@ int main(void)
         for (int i = 0; i < index; i++)
         {
             y = 32;
-
-            //DrawText(&printedLines[i][0], screenWidth / 64, y * (i + 1), 40, MAROON);
             std::string userString = &printedLines[i][0];
             if (userString == clear)
             {
                 clearScreen = true;
             }
-            else
-            {
-                command.testCommand(userString, screenWidth / 64, y * (i + 1) );
+            else {
+                command.testCommand(userString, screenWidth / 64, y * (i + 1));
             }
         }
 
