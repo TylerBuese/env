@@ -82,13 +82,16 @@ int main(void)
     int x = 0;
     int y = 0;
     char test[5] = "test";
-    bool wordWrapped {false};
     //screen altering functions
     const char clear[6] = "clear";
+    const char enterIRC[4] = "irc";
     bool clearScreen{false};
+    bool inIRC {false};
+    bool overText {false};
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     Rectangle OuterBox = {0, 0, screenWidth, screenHeight};
+    Rectangle IRCBox = {10, 10, screenWidth / 2, screenHeight - 20};
     bool mouseOnText = false;
 
     int framesCounter = 0;
@@ -177,9 +180,17 @@ int main(void)
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, RED);
         else
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
+        if (MeasureText(name, 40) <= GetScreenWidth() - 30)
+        {
+            overText = false;
+        } else 
+        {
+            overText = true;
+            DrawText("Too many characters", screenHeight / 2, screenWidth / 2, 40, RED);
+        }
 
         DrawText(name, 40, 670, 40, MAROON);
-        if (IsKeyPressed(KEY_ENTER) && !clearScreen && !IsKeyDown(KEY_LEFT_ALT))
+        if (IsKeyPressed(KEY_ENTER) && !clearScreen && !IsKeyDown(KEY_LEFT_ALT) && !overText )
         {
             //adds all items in name to prevLine
             for (int i = 0; i < keysPressed; i++)
@@ -202,11 +213,13 @@ int main(void)
         {
             y = 32;
             std::string userString = &printedLines[i][0];
-            if (userString == clear)
+            if (userString == clear) //If input is "clear", clear screen
             {
                 clearScreen = true;
-            }
-            else {
+            } else if (userString == enterIRC) //if input is enterIrc, draw IRC box
+            {
+                inIRC = true;
+            } else {
                 command.testCommand(userString, screenWidth / 64, y * (i + 1));
             }
         }
@@ -238,6 +251,11 @@ int main(void)
             }
             clearScreen = false;
             index = 0;
+        }
+
+        if (inIRC)
+        {
+            DrawRectangleRec(IRCBox, GRAY);
         }
 
         EndDrawing();
