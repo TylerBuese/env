@@ -1,20 +1,15 @@
 #include "raylib.h"
 #include "string"
 #include "vector"
+#include "irc.h"
 
 #define MAX_INPUT_CHARS 1024
-bool wordWrap {false};
+bool wordWrap{false};
 struct Commands
 {
-    void ping()
-    {
-    }
-
     void testCommand(std::string inputText, float x, float y)
     {
-        int sizeOfPing{5};
         int numberOfCommands{2};
-        bool foundCommand{false};
         const char commands[50][1000]{
             "ping",
             ""};
@@ -62,7 +57,6 @@ struct Commands
 
 struct Upgrades
 {
-
 };
 
 int main(void)
@@ -74,10 +68,14 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "$env:");
 
-    char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
+    char cmd[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
+    char irc[MAX_INPUT_CHARS + 1] = "\0";
     char printedLines[32][1024];
+    char ircLines[100][1024];
     int letterCount = 0;
+    int ircLetterCount {0};
     int keysPressed{0};
+    int ircKeysPressed {0};
     int index{0};
     int x = 0;
     int y = 0;
@@ -86,8 +84,8 @@ int main(void)
     const char clear[6] = "clear";
     const char enterIRC[4] = "irc";
     bool clearScreen{false};
-    bool inIRC {false};
-    bool overText {false};
+    bool inIRC{false};
+    bool overText{false};
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     Rectangle OuterBox = {0, 0, screenWidth, screenHeight};
@@ -129,8 +127,8 @@ int main(void)
             // NOTE: Only allow keys in range [32..125]
             if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS))
             {
-                name[letterCount] = (char)key;
-                name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
+                cmd[letterCount] = (char)key;
+                cmd[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
                 letterCount++;
                 keysPressed++;
             }
@@ -147,7 +145,7 @@ int main(void)
             keysPressed--;
             if (letterCount < 0)
                 letterCount = 0;
-            name[letterCount] = '\0';
+            cmd[letterCount] = '\0';
         }
 
         if (IsKeyPressed(KEY_BACKSPACE) && IsKeyDown(KEY_LEFT_CONTROL))
@@ -159,7 +157,7 @@ int main(void)
                 keysPressed -= keysPressed;
                 if (letterCount < 0)
                     letterCount = 0;
-                name[0] = '\0';
+                cmd[0] = '\0';
             }
         }
 
@@ -180,63 +178,20 @@ int main(void)
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, RED);
         else
             DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
-        if (MeasureText(name, 40) <= GetScreenWidth() - 30)
+        if (MeasureText(cmd, 40) <= GetScreenWidth() - 30)
         {
             overText = false;
-        } else 
+        }
+        else
         {
             overText = true;
             DrawText("Too many characters", screenHeight / 2, screenWidth / 2, 40, RED);
         }
-
-        DrawText(name, 40, 670, 40, MAROON);
-        if (IsKeyPressed(KEY_ENTER) && !clearScreen && !IsKeyDown(KEY_LEFT_ALT) && !overText )
+        if (!inIRC)
         {
-            //adds all items in name to prevLine
-            for (int i = 0; i < keysPressed; i++)
-            {
-                printedLines[index][i] += name[i];
-            }
-
-            //reset terminal prompt
-            for (int i = 0; i < keysPressed; i++)
-            {
-                name[i] = '\0';
-            }
-            keysPressed = 0;
-            letterCount = 0;
-            index++;
+            
         }
-        std::string testString = &test[0];
-        Commands command;
-        for (int i = 0; i < index; i++)
-        {
-            y = 32;
-            std::string userString = &printedLines[i][0];
-            if (userString == clear) //If input is "clear", clear screen
-            {
-                clearScreen = true;
-            } else if (userString == enterIRC) //if input is enterIrc, draw IRC box
-            {
-                inIRC = true;
-            } else {
-                command.testCommand(userString, screenWidth / 64, y * (i + 1));
-            }
-        }
-
-        //const char prevLines[] = {'A', 'B', 'C'}; //gwhen you call the array, it gives you everything up to the null term. i.e., prevLines[1] gives you b,c -not a
-        if (mouseOnText)
-        {
-            if (letterCount < MAX_INPUT_CHARS)
-            {
-                // Draw blinking underscore char
-                if (((framesCounter / 20) % 2) == 0)
-
-                    DrawText(">", 20, 670, 40, MAROON);
-            }
-            else
-                DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
-        }
+        
 
         if (clearScreen)
         {
@@ -256,6 +211,26 @@ int main(void)
         if (inIRC)
         {
             DrawRectangleRec(IRCBox, GRAY);
+            if (((framesCounter / 20) % 2) == 0)
+                DrawText(">", 20, 670, 40, MAROON);
+
+            DrawText(irc, 40, 670, 40, MAROON);
+            
+            int ircKey = GetKeyPressed();
+            while (ircKey > 0)
+            {
+                // NOTE: Only allow keys in range [32..125]
+                if ((ircKey >= 32) && (ircKey <= 125) && (ircLetterCount < MAX_INPUT_CHARS))
+                {
+                    irc[ircLetterCount] = (char)ircKey;
+                    irc[ircLetterCount + 1] = '\0'; // Add null terminator at the end of the string.
+                    ircLetterCount++;
+                    ircKeysPressed++;
+                }
+                ircKey = GetCharPressed(); // Check next character in the queue
+            }
+
+
         }
 
         EndDrawing();
