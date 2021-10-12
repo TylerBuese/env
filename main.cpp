@@ -171,6 +171,11 @@ int main(void)
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
+        if (!inIRC)
+        {
+            //put al non-irc stuff in here
+        }
+
         ClearBackground(RAYWHITE);
         DrawRectangleRec(OuterBox, BLACK);
         DrawRectangleRec(textBox, LIGHTGRAY);
@@ -187,11 +192,6 @@ int main(void)
             overText = true;
             DrawText("Too many characters", screenHeight / 2, screenWidth / 2, 40, RED);
         }
-        if (!inIRC)
-        {
-            
-        }
-        
 
         if (clearScreen)
         {
