@@ -1,15 +1,20 @@
 #include "raylib.h"
 #include "string"
 #include "vector"
-#include "irc.h"
 
 #define MAX_INPUT_CHARS 1024
 bool wordWrap{false};
 struct Commands
 {
+    void ping()
+    {
+    }
+
     void testCommand(std::string inputText, float x, float y)
     {
+        int sizeOfPing{5};
         int numberOfCommands{2};
+        bool foundCommand{false};
         const char commands[50][1000]{
             "ping",
             ""};
@@ -68,14 +73,10 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "$env:");
 
-    char cmd[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
-    char irc[MAX_INPUT_CHARS + 1] = "\0";
+    char name[MAX_INPUT_CHARS + 1] = "\0"; // NOTE: One extra space required for null terminator char '\0'
     char printedLines[32][1024];
-    char ircLines[100][1024];
     int letterCount = 0;
-    int ircLetterCount {0};
     int keysPressed{0};
-    int ircKeysPressed {0};
     int index{0};
     int x = 0;
     int y = 0;
@@ -89,7 +90,7 @@ int main(void)
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     Rectangle OuterBox = {0, 0, screenWidth, screenHeight};
-    Rectangle IRCBox = {10, 10, screenWidth / 2, screenHeight - 20};
+    Rectangle IRCBox = {10, 10, screenWidth - 40, screenHeight - 40};
     bool mouseOnText = false;
 
     int framesCounter = 0;
@@ -100,141 +101,204 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose()) // Detect window close button or ESC key
     {
+        //controles
         if (IsKeyDown(KEY_LEFT_ALT) && IsKeyDown(KEY_ENTER))
         {
             ToggleFullscreen();
         }
         // Update
         //----------------------------------------------------------------------------------
-        if (CheckCollisionPointRec(GetMousePosition(), textBox))
-            mouseOnText = true;
-        else
-            mouseOnText = false;
-
-        if (mouseOnText)
-        {
-            // Set the window's cursor to the I-Beam
-            SetMouseCursor(MOUSE_CURSOR_IBEAM);
-        }
-        else
-            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-
-        int key = GetCharPressed();
-
-        // Check if more characters have been pressed on the same frame
-        while (key > 0)
-        {
-            // NOTE: Only allow keys in range [32..125]
-            if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS))
-            {
-                cmd[letterCount] = (char)key;
-                cmd[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
-                letterCount++;
-                keysPressed++;
-            }
-
-            key = GetCharPressed(); // Check next character in the queue
-        }
-
-        // Get char pressed (unicode character) on the queue
-
-        if (IsKeyPressed(KEY_BACKSPACE))
-        {
-
-            letterCount--;
-            keysPressed--;
-            if (letterCount < 0)
-                letterCount = 0;
-            cmd[letterCount] = '\0';
-        }
-
-        if (IsKeyPressed(KEY_BACKSPACE) && IsKeyDown(KEY_LEFT_CONTROL))
-        {
-
-            for (int i = 0; i < letterCount; i++)
-            {
-                letterCount -= letterCount;
-                keysPressed -= keysPressed;
-                if (letterCount < 0)
-                    letterCount = 0;
-                cmd[0] = '\0';
-            }
-        }
-
-        if (mouseOnText)
-            framesCounter++;
-        else
-            framesCounter = 0;
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
         if (!inIRC)
         {
-            //put al non-irc stuff in here
-        }
+            if (CheckCollisionPointRec(GetMousePosition(), textBox))
+                mouseOnText = true;
+            else
+                mouseOnText = false;
 
-        ClearBackground(RAYWHITE);
-        DrawRectangleRec(OuterBox, BLACK);
-        DrawRectangleRec(textBox, LIGHTGRAY);
-        if (mouseOnText)
-            DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, RED);
-        else
-            DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
-        if (MeasureText(cmd, 40) <= GetScreenWidth() - 30)
-        {
-            overText = false;
-        }
-        else
-        {
-            overText = true;
-            DrawText("Too many characters", screenHeight / 2, screenWidth / 2, 40, RED);
-        }
-
-        if (clearScreen)
-        {
-            for (int i = 0; i < index; i++)
+            if (mouseOnText)
             {
-                std::string tempLine = &printedLines[i][0];
-                int numOfCharacters = tempLine.length();
-                for (int j = 0; i < numOfCharacters; j++)
-                {
-                    printedLines[i][j] = '\0';
-                }
+                // Set the window's cursor to the I-Beam
+                SetMouseCursor(MOUSE_CURSOR_IBEAM);
             }
-            clearScreen = false;
-            index = 0;
-        }
+            else
+                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 
-        if (inIRC)
-        {
-            DrawRectangleRec(IRCBox, GRAY);
-            if (((framesCounter / 20) % 2) == 0)
-                DrawText(">", 20, 670, 40, MAROON);
+            int key = GetCharPressed();
 
-            DrawText(irc, 40, 670, 40, MAROON);
-            
-            int ircKey = GetKeyPressed();
-            while (ircKey > 0)
+            // Check if more characters have been pressed on the same frame
+            while (key > 0)
             {
                 // NOTE: Only allow keys in range [32..125]
-                if ((ircKey >= 32) && (ircKey <= 125) && (ircLetterCount < MAX_INPUT_CHARS))
+                if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS))
                 {
-                    irc[ircLetterCount] = (char)ircKey;
-                    irc[ircLetterCount + 1] = '\0'; // Add null terminator at the end of the string.
-                    ircLetterCount++;
-                    ircKeysPressed++;
+                    name[letterCount] = (char)key;
+                    name[letterCount + 1] = '\0'; // Add null terminator at the end of the string.
+                    letterCount++;
+                    keysPressed++;
                 }
-                ircKey = GetCharPressed(); // Check next character in the queue
+
+                key = GetCharPressed(); // Check next character in the queue
             }
 
+            // Get char pressed (unicode character) on the queue
 
+            if (IsKeyPressed(KEY_BACKSPACE))
+            {
+
+                letterCount--;
+                keysPressed--;
+                if (letterCount < 0)
+                    letterCount = 0;
+                name[letterCount] = '\0';
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE) && IsKeyDown(KEY_LEFT_CONTROL))
+            {
+
+                for (int i = 0; i < letterCount; i++)
+                {
+                    letterCount -= letterCount;
+                    keysPressed -= keysPressed;
+                    if (letterCount < 0)
+                        letterCount = 0;
+                    name[0] = '\0';
+                }
+            }
+
+            if (mouseOnText)
+                framesCounter++;
+            else
+                framesCounter = 0;
+            //----------------------------------------------------------------------------------
+
+            // Draw
+            //----------------------------------------------------------------------------------
+            BeginDrawing();
+
+            ClearBackground(RAYWHITE);
+            DrawRectangleRec(OuterBox, BLACK);
+            DrawRectangleRec(textBox, LIGHTGRAY);
+            if (mouseOnText)
+                DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, RED);
+            else
+                DrawRectangleLines(textBox.x, textBox.y, textBox.width, textBox.height, DARKGRAY);
+            if (MeasureText(name, 40) <= GetScreenWidth() - 30)
+            {
+                overText = false;
+            }
+            else
+            {
+                overText = true;
+                DrawText("Too many characters", screenHeight / 2, screenWidth / 2, 40, RED);
+            }
+
+            DrawText(name, 40, 670, 40, MAROON);
+            if (IsKeyPressed(KEY_ENTER) && !clearScreen && !IsKeyDown(KEY_LEFT_ALT) && !overText)
+            {
+                //adds all items in name to prevLine
+                for (int i = 0; i < keysPressed; i++)
+                {
+                    printedLines[index][i] += name[i];
+                }
+
+                //reset terminal prompt
+                for (int i = 0; i < keysPressed; i++)
+                {
+                    name[i] = '\0';
+                }
+                keysPressed = 0;
+                letterCount = 0;
+                index++;
+            }
+            std::string testString = &test[0];
+            Commands command;
+            for (int i = 0; i < index; i++)
+            {
+                y = 32;
+                std::string userString = &printedLines[i][0];
+                if (userString == clear) //If input is "clear", clear screen
+                {
+                    clearScreen = true;
+                }
+                else if (userString == enterIRC) //if input is enterIrc, draw IRC box
+                {
+                    inIRC = true;
+                }
+                else
+                {
+                    command.testCommand(userString, screenWidth / 64, y * (i + 1));
+                }
+            }
+
+            //const char prevLines[] = {'A', 'B', 'C'}; //gwhen you call the array, it gives you everything up to the null term. i.e., prevLines[1] gives you b,c -not a
+            if (mouseOnText)
+            {
+                if (letterCount < MAX_INPUT_CHARS)
+                {
+                    // Draw blinking underscore char
+                    if (((framesCounter / 20) % 2) == 0)
+
+                        DrawText(">", 20, 670, 40, MAROON);
+                }
+                else
+                    DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
+            }
+
+            if (clearScreen)
+            {
+                for (int i = 0; i < index; i++)
+                {
+                    std::string tempLine = &printedLines[i][0];
+                    int numOfCharacters = tempLine.length();
+                    for (int j = 0; i < numOfCharacters; j++)
+                    {
+                        printedLines[i][j] = '\0';
+                    }
+                }
+                clearScreen = false;
+                index = 0;
+            }
+
+            EndDrawing();
+            //----------------------------------------------------------------------------------
+        } else if (inIRC)
+        {
+
+            Rectangle TextBoxes[10] {0, 0, 0, 0};
+            TextBoxes[0].height = 75;
+            TextBoxes[0].width = 800; //relace with measure text
+            TextBoxes[0].x = 20;
+            TextBoxes[0].y = 20;
+            Rectangle InputBox {20, 635, 800, 75};
+            int sizeOfDecisionBox = 3;
+            Rectangle DecisionBox[sizeOfDecisionBox] {0, 0, 0, 0};
+            BeginDrawing();
+            ClearBackground(GRAY);
+            DrawRectangleRec(TextBoxes[0], RED);
+            DrawRectangleRec(InputBox, BLUE);
+            DecisionBox[0].x = 35;
+            DecisionBox[0].y = 642;
+            DecisionBox[0].width = 200;
+            DecisionBox[0].height = 60;
+            DecisionBox[1].x = 300;
+            DecisionBox[1].y = 642;
+            DecisionBox[1].width = 200;
+            DecisionBox[1].height = 60;
+            DecisionBox[2].x = 600;
+            DecisionBox[2].y = 642;
+            DecisionBox[2].width = 200;
+            DecisionBox[2].height = 60;
+            DrawRectangleRec(DecisionBox[0], RED);
+            DrawRectangleRec(DecisionBox[1], RED);
+            DrawRectangleRec(DecisionBox[2], RED);
+
+
+
+            
+
+            EndDrawing();
         }
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
+ 
     }
 
     // De-Initialization
