@@ -87,6 +87,7 @@ int main(void)
     bool clearScreen{false};
     bool inIRC{false};
     bool overText{false};
+    int selIndex {0};
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     Rectangle OuterBox = {0, 0, screenWidth, screenHeight};
@@ -223,6 +224,8 @@ int main(void)
                 else if (userString == enterIRC) //if input is enterIrc, draw IRC box
                 {
                     inIRC = true;
+                    printedLines[i][0] = '\0';
+                    clearScreen = true;
                 }
                 else
                 {
@@ -264,6 +267,9 @@ int main(void)
         } else if (inIRC)
         {
 
+            //irc variables
+            bool selected {false}; 
+
             Rectangle TextBoxes[10] {0, 0, 0, 0};
             TextBoxes[0].height = 75;
             TextBoxes[0].width = 800; //relace with measure text
@@ -288,11 +294,31 @@ int main(void)
             DecisionBox[2].y = 642;
             DecisionBox[2].width = 200;
             DecisionBox[2].height = 60;
-            DrawRectangleRec(DecisionBox[0], RED);
-            DrawRectangleRec(DecisionBox[1], RED);
-            DrawRectangleRec(DecisionBox[2], RED);
+            DrawRectangleRec(DecisionBox[0], GRAY);
+            DrawRectangleRec(DecisionBox[1], GRAY);
+            DrawRectangleRec(DecisionBox[2], GRAY);
+
+            //select box
+            if (IsKeyPressed(KEY_LEFT))
+            {  
+                if (selIndex >= 0 && selIndex <= 3) selIndex--;
+            }
+
+            if (IsKeyPressed(KEY_RIGHT))
+            {
+                if (selIndex >= 0 && selIndex <= 3) selIndex++;
+            }
+
+            DrawRectangleRec(DecisionBox[selIndex], WHITE);
 
 
+
+            DrawRectangleLines(DecisionBox[selIndex].x, DecisionBox[selIndex].y, DecisionBox[selIndex].width, DecisionBox[selIndex].height, DARKGRAY);
+
+            if (IsKeyDown(KEY_TAB))
+            {
+                inIRC = false;
+            }
 
             
 
