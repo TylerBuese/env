@@ -62,6 +62,7 @@ struct Commands
 
 struct Upgrades
 {
+
 };
 
 int main(void)
@@ -143,7 +144,7 @@ int main(void)
 
             // Get char pressed (unicode character) on the queue
 
-            if (IsKeyPressed(KEY_BACKSPACE))
+            if (IsKeyPressed(KEY_BACKSPACE) && letterCount > 0)
             {
 
                 letterCount--;
@@ -268,7 +269,6 @@ int main(void)
         {
 
             //irc variables
-            bool selected {false}; 
 
             Rectangle TextBoxes[10] {0, 0, 0, 0};
             TextBoxes[0].height = 75;
@@ -301,18 +301,29 @@ int main(void)
             //select box
             if (IsKeyPressed(KEY_LEFT))
             {  
-                if (selIndex >= 0 && selIndex <= 3) selIndex--;
+                if (selIndex >= 0 && selIndex <= 2) selIndex--;
             }
 
             if (IsKeyPressed(KEY_RIGHT))
             {
-                if (selIndex >= 0 && selIndex <= 3) selIndex++;
+                if (selIndex >= 0 && selIndex <= 2) selIndex++;
+            }
+
+            if (IsKeyPressed(KEY_ENTER))
+            {
+                //submit option
+                selIndex = 0;
+            }
+
+            if (selIndex >= 2)
+            {
+                selIndex = 2;
+            } else if (selIndex <= 0)
+            {
+                selIndex = 0;
             }
 
             DrawRectangleRec(DecisionBox[selIndex], WHITE);
-
-
-
             DrawRectangleLines(DecisionBox[selIndex].x, DecisionBox[selIndex].y, DecisionBox[selIndex].width, DecisionBox[selIndex].height, DARKGRAY);
 
             if (IsKeyDown(KEY_TAB))
