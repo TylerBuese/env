@@ -4,6 +4,7 @@
 
 #define MAX_INPUT_CHARS 1024
 bool wordWrap{false};
+std::string IrcMessage(int message);
 struct Commands
 {
     void ping()
@@ -82,13 +83,18 @@ int main(void)
     int x = 0;
     int y = 0;
     char test[5] = "test";
+
     //screen altering functions
     const char clear[6] = "clear";
     const char enterIRC[4] = "irc";
     bool clearScreen{false};
     bool inIRC{false};
     bool overText{false};
+
+    //irc variables
+    int mesesageCount {0};
     int selIndex {0};
+    std::string message[50];
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     Rectangle OuterBox = {0, 0, screenWidth, screenHeight};
@@ -270,7 +276,7 @@ int main(void)
 
             //irc variables
 
-            Rectangle TextBoxes[10] {0, 0, 0, 0};
+            Rectangle TextBoxes[50] {0, 0, 0, 0};
             TextBoxes[0].height = 75;
             TextBoxes[0].width = 800; //relace with measure text
             TextBoxes[0].x = 20;
@@ -280,7 +286,6 @@ int main(void)
             Rectangle DecisionBox[sizeOfDecisionBox] {0, 0, 0, 0};
             BeginDrawing();
             ClearBackground(GRAY);
-            DrawRectangleRec(TextBoxes[0], RED);
             DrawRectangleRec(InputBox, BLUE);
             DecisionBox[0].x = 35;
             DecisionBox[0].y = 642;
@@ -331,6 +336,22 @@ int main(void)
                 inIRC = false;
             }
 
+            std::string message = IrcMessage(2001);
+            TextBoxes[0].width = MeasureText(message.c_str(), 20) + 25;
+            
+
+            //print npc text boxes
+            for (int i = 0; i <= mesesageCount; i++)
+            {
+                DrawRectangleRec(TextBoxes[i], RED);
+            }
+
+            //print text
+            for (int i = 0; i <= mesesageCount; i++)
+            {   
+                DrawText(message.c_str(), TextBoxes[0].x, TextBoxes->y, 20, BLACK);
+            }
+
             
 
             EndDrawing();
@@ -356,4 +377,17 @@ bool IsAnyKeyPressed()
         keyPressed = true;
 
     return keyPressed;
+}
+
+std::string IrcMessage(int message)
+{
+    std::string messages[3000] {"\0"};
+    //challenge messages
+
+    //campaign messages
+
+    //tutorial messages
+    messages[2000] = "Hello there.";
+    messages[2001] = "Well, this is a surprise";
+    return messages[message];
 }
