@@ -4,7 +4,7 @@
 
 #define MAX_INPUT_CHARS 1024
 bool wordWrap{false};
-std::string IrcMessage(int message);
+std::string IrcMessage(int Message);
 struct Commands
 {
     void ping()
@@ -91,10 +91,11 @@ int main(void)
     bool overText{false};
 
     //irc variables
-    int npcMesesageCount{0};
-    int userMessageCount {0};
+    int npcMessageCount{0};
+    int userMessageCount {-1};
     int selIndex{0};
-    std::string message[50];
+    std::string npcMessage[50];
+    std::string userMessage[50];
     bool displayMessage[50]{false};
 
 
@@ -283,8 +284,8 @@ int main(void)
             //irc variables
             int npcIrcX{20};
             int npcIrcY{20};
-            int userIrcX{20};
-            int userIrcY{20};
+            int userIrcX{500};
+            int userIrcY{50};
 
             Rectangle npcTextBoxes[50]{0, 0, 0, 0};
             Rectangle userTextBoxes[50]{0, 0, 0, 0};
@@ -292,23 +293,24 @@ int main(void)
             // npcnpcTextBoxes[0].width = 800; //relace with measure text
             // npcnpcTextBoxes[0].x = 20;
             // npcTextBoxes[0].y = 20;
-            Rectangle InputBox{20, 635, 800, 75};
+            Rectangle InputBox{20, 635, 1240, 75};
             int sizeOfDecisionBox = 3;
             Rectangle DecisionBox[sizeOfDecisionBox]{0, 0, 0, 0};
             BeginDrawing();
             ClearBackground(GRAY);
             DrawRectangleRec(InputBox, BLUE);
-            DecisionBox[0].x = 35;
+            int decBoxWidth {375};
+            DecisionBox[0].x = 50;
             DecisionBox[0].y = 642;
-            DecisionBox[0].width = 200;
+            DecisionBox[0].width = decBoxWidth;
             DecisionBox[0].height = 60;
-            DecisionBox[1].x = 300;
+            DecisionBox[1].x = 450;
             DecisionBox[1].y = 642;
-            DecisionBox[1].width = 200;
+            DecisionBox[1].width = decBoxWidth;
             DecisionBox[1].height = 60;
-            DecisionBox[2].x = 600;
+            DecisionBox[2].x = 850;
             DecisionBox[2].y = 642;
-            DecisionBox[2].width = 200;
+            DecisionBox[2].width = decBoxWidth;
             DecisionBox[2].height = 60;
             DrawRectangleRec(DecisionBox[0], GRAY);
             DrawRectangleRec(DecisionBox[1], GRAY);
@@ -332,7 +334,8 @@ int main(void)
                 //submit option
                 selIndex = 0;
                 userMessageCount++;
-                npcMesesageCount++;
+                npcMessageCount++;
+
             }
 
             if (selIndex >= 2)
@@ -344,7 +347,7 @@ int main(void)
                 selIndex = 0;
             }
 
-            DrawRectangleRec(DecisionBox[selIndex], WHITE);
+            DrawRectangleRec(DecisionBox[selIndex], DARKGRAY);
             DrawRectangleLines(DecisionBox[selIndex].x, DecisionBox[selIndex].y, DecisionBox[selIndex].width, DecisionBox[selIndex].height, DARKGRAY);
 
             if (IsKeyDown(KEY_TAB))
@@ -352,36 +355,51 @@ int main(void)
                 inIRC = false;
             }
 
-            std::string message = IrcMessage(2001);
-            npcTextBoxes[0].width = MeasureText(message.c_str(), 20) + 25;
+            std::string npcMessage = IrcMessage(2000);
+            std::string userMessage = IrcMessage(2001);
+            npcTextBoxes[0].width = MeasureText(npcMessage.c_str(), 20) + 25;
 
             //print npc text boxes
-            for (int i = 0; i <= npcMesesageCount; i++)
+            for (int i = 0; i <= npcMessageCount; i++)
             {
-                npcTextBoxes[i].height = 25;
-                npcTextBoxes[i].width = MeasureText(message.c_str(), 20) + 25;; //relace with measure text
+                npcTextBoxes[i].height = 30;
+                npcTextBoxes[i].width = MeasureText(npcMessage.c_str(), 20) + 25;
                 npcTextBoxes[i].x = npcIrcX;
                 npcTextBoxes[i].y = npcIrcY;
                 DrawRectangleRec(npcTextBoxes[i], RED);
-                npcIrcY += 40;
+                npcIrcY += 75;
             }
 
             //print player boxes
             for (int i = 0; i <= userMessageCount; i++)
             {
-                userTextBoxes[i].height = 25;
-                userTextBoxes[i].width = MeasureText(message.c_str(), 20) + 25;; //relace with measure text
+                userTextBoxes[i].height = 30;
+                userTextBoxes[i].width = MeasureText(npcMessage.c_str(), 20) + 25;
                 userTextBoxes[i].x = userIrcX;
                 userTextBoxes[i].y = userIrcY;
-                DrawRectangleRec(userTextBoxes[i], RED);
-                userIrcY += 40;
+                DrawRectangleRec(userTextBoxes[i], BLUE);
+                userIrcY += 75;
             }
 
-            //print text
-            for (int i = 0; i <= npcMesesageCount; i++)
+            //print text in npc box
+            for (int i = 0; i <= npcMessageCount; i++)
             {
-                DrawText(message.c_str(), npcTextBoxes[0].x, npcTextBoxes->y, 20, BLACK);
+                DrawText(npcMessage.c_str(), npcTextBoxes[0].x, npcTextBoxes[0].y, 20, BLACK);
             }
+
+            //print text in user box
+            for (int i = 0; i <= userMessageCount; i++)
+            {
+                DrawText(userMessage.c_str(), userTextBoxes[0].x, userTextBoxes[0].y, 20, BLACK);
+            }
+
+            //print text in decision box
+                DrawText(IrcMessage(2001).c_str(), DecisionBox[0].x, DecisionBox[0].y, 20, WHITE);
+                DrawText(IrcMessage(2002).c_str(), DecisionBox[1].x, DecisionBox[1].y, 20, WHITE);
+                DrawText(IrcMessage(2003).c_str(), DecisionBox[2].x, DecisionBox[2].y, 20, WHITE);
+            
+
+
 
             EndDrawing();
         }
@@ -409,13 +427,25 @@ bool IsAnyKeyPressed()
 
 std::string IrcMessage(int message)
 {
+    /* ==MESSAGES==
+    
+    messages are structured as so;
+        - Each message and it's responses are contiguously ordered in an array.
+        - So if the message "Hello, you" is stored in array index [0], "Hello to you too", "Hey", and "Howdy!" are [1], [2], and [3]
+            - i.e., messagesArray[4] {"Hello, you", "Hello to you too", "Hey", "Howdy!"};
+        -This is done to keep the number of arrays down, and imo is just as managable as maintaining mutiple arrays, since there are multiple responses for each message
+    */
     std::string messages[3000]{"\0"};
     //challenge messages
 
     //campaign messages
 
     //tutorial messages
-    messages[2000] = "Hello there.";
-    messages[2001] = "Well, this is a surprise";
+    messages[2000] = "Hey, it's Q. You get in yet? We're dying to see what's in their db.";
+    messages[2001] = "I'm sorry... Who?";
+    messages[2002] = "Uhh, yeah. I got in...";
+    messages[2003] = "<Don't respond>";
+    
+
     return messages[message];
 }
