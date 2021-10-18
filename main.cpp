@@ -96,7 +96,12 @@ int main(void)
     int selIndex{0};
     std::string npcMessage[50];
     std::string userMessage[50];
+    std::string npcMessageText[50];
+    std::string userMessageText[50];
     bool displayMessage[50]{false};
+    bool level[10]{false};
+    int currentMessageNum {0}; //
+    int userMessageNum {0};
 
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
@@ -317,17 +322,37 @@ int main(void)
             DrawRectangleRec(DecisionBox[2], GRAY);
 
             //select box
+
+            std::string npcMessage = IrcMessage(2000);
+
+            //choose user message
+            
+            std::string userMessage = IrcMessage(2001 + currentMessageNum);
+            userMessageText[0] = userMessage;
+            npcTextBoxes[0].width = MeasureText(npcMessage.c_str(), 20) + 25;
+            npcMessageText[0] = npcMessage;
+
             if (IsKeyPressed(KEY_LEFT))
             {
                 if (selIndex >= 0 && selIndex <= 2)
-                    selIndex--;
+                {
+                    selIndex--; 
+                    currentMessageNum = selIndex + userMessageNum;
+                }
+                        
             }
 
             if (IsKeyPressed(KEY_RIGHT))
             {
                 if (selIndex >= 0 && selIndex <= 2)
+                {
                     selIndex++;
+                    currentMessageNum = selIndex + userMessageNum;
+                }
+                    
             }
+
+            DrawText(std::to_string(currentMessageNum).c_str(), 600, 600, 20, WHITE);
 
             if (IsKeyPressed(KEY_ENTER))
             {
@@ -341,10 +366,13 @@ int main(void)
             if (selIndex >= 2)
             {
                 selIndex = 2;
+                currentMessageNum = selIndex + userMessageNum;
             }
+
             else if (selIndex <= 0)
             {
                 selIndex = 0;
+                currentMessageNum = selIndex + userMessageNum;
             }
 
             DrawRectangleRec(DecisionBox[selIndex], DARKGRAY);
@@ -355,10 +383,6 @@ int main(void)
                 inIRC = false;
             }
 
-            std::string npcMessage = IrcMessage(2000);
-            std::string userMessage = IrcMessage(2001);
-            npcTextBoxes[0].width = MeasureText(npcMessage.c_str(), 20) + 25;
-
             //print npc text boxes
             for (int i = 0; i <= npcMessageCount; i++)
             {
@@ -367,6 +391,7 @@ int main(void)
                 npcTextBoxes[i].x = npcIrcX;
                 npcTextBoxes[i].y = npcIrcY;
                 DrawRectangleRec(npcTextBoxes[i], RED);
+                DrawText(npcMessage.c_str(), npcTextBoxes[0].x, npcTextBoxes[0].y, 20, BLACK);
                 npcIrcY += 75;
             }
 
@@ -378,25 +403,14 @@ int main(void)
                 userTextBoxes[i].x = userIrcX;
                 userTextBoxes[i].y = userIrcY;
                 DrawRectangleRec(userTextBoxes[i], BLUE);
+                DrawText(userMessageText[i].c_str(), userTextBoxes[i].x, userTextBoxes[i].y, 20, BLACK);
                 userIrcY += 75;
             }
 
-            //print text in npc box
-            for (int i = 0; i <= npcMessageCount; i++)
-            {
-                DrawText(npcMessage.c_str(), npcTextBoxes[0].x, npcTextBoxes[0].y, 20, BLACK);
-            }
-
-            //print text in user box
-            for (int i = 0; i <= userMessageCount; i++)
-            {
-                DrawText(userMessage.c_str(), userTextBoxes[0].x, userTextBoxes[0].y, 20, BLACK);
-            }
-
             //print text in decision box
-                DrawText(IrcMessage(2001).c_str(), DecisionBox[0].x, DecisionBox[0].y, 20, WHITE);
-                DrawText(IrcMessage(2002).c_str(), DecisionBox[1].x, DecisionBox[1].y, 20, WHITE);
-                DrawText(IrcMessage(2003).c_str(), DecisionBox[2].x, DecisionBox[2].y, 20, WHITE);
+            DrawText(IrcMessage(2001).c_str(), DecisionBox[0].x, DecisionBox[0].y, 20, WHITE);
+            DrawText(IrcMessage(2002).c_str(), DecisionBox[1].x, DecisionBox[1].y, 20, WHITE);
+            DrawText(IrcMessage(2003).c_str(), DecisionBox[2].x, DecisionBox[2].y, 20, WHITE);
             
 
 
