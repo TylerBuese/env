@@ -319,16 +319,18 @@ int main(void)
             DrawRectangleRec(DecisionBox[2], GRAY);
 
             //select box
-            int npcChatNumber {0};
             
             //campaign logic?
+            if (selectedOption == -1)
+            {
+                npcChatNumber = 2000;
+            }
             npcMessageText[messageCount]= IrcMessage(npcChatNumber);
 
             //choose user message
-            std::string userMessage = IrcMessage(2001 + currentMessageNum);
+            std::string userMessage = IrcMessage(npcChatNumber + 1 + currentMessageNum);
             userMessageText[messageCount] = userMessage;
             npcTextBoxes[messageCount].width = MeasureText(npcMessageText[messageCount].c_str(), 20) + 25;
-            npcMessageText[messageCount] = npcMessageText[messageCount];
 
             if (IsKeyPressed(KEY_LEFT))
             {
@@ -357,14 +359,10 @@ int main(void)
                 //submit option
                 selectedOption = selIndex;
                 selIndex = 0;
-                messageCount++;
 
             }
 
-            if (selectedOption == -1)
-            {
-                npcChatNumber = 2000;
-            }
+            
             if (selectedOption == 0)
             {
                 npcChatNumber = 2004;
@@ -418,6 +416,11 @@ int main(void)
             DrawText(IrcMessage(npcChatNumber + 1).c_str(), DecisionBox[0].x, DecisionBox[0].y, 20, WHITE);
             DrawText(IrcMessage(npcChatNumber + 2).c_str(), DecisionBox[1].x, DecisionBox[1].y, 20, WHITE);
             DrawText(IrcMessage(npcChatNumber + 3).c_str(), DecisionBox[2].x, DecisionBox[2].y, 20, WHITE);
+
+            if (IsKeyPressed(KEY_ENTER))
+            {
+                messageCount++;
+            }
 
             
             EndDrawing();
