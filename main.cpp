@@ -101,6 +101,8 @@ int main(void)
     bool level[10]{false};
     int currentMessageNum {0}; //
     int userMessageNum {0};
+    int selectedOption {-1};
+    int npcChatNumber = 2000;
 
 
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
@@ -317,16 +319,16 @@ int main(void)
             DrawRectangleRec(DecisionBox[2], GRAY);
 
             //select box
-            int npcMessageNum {0};
+            int npcChatNumber {0};
             
-            std::string npcMessage = IrcMessage(2000);
+            //campaign logic?
+            npcMessageText[messageCount]= IrcMessage(npcChatNumber);
 
             //choose user message
-            
             std::string userMessage = IrcMessage(2001 + currentMessageNum);
             userMessageText[messageCount] = userMessage;
-            npcTextBoxes[messageCount].width = MeasureText(npcMessage.c_str(), 20) + 25;
-            npcMessageText[messageCount] = npcMessage;
+            npcTextBoxes[messageCount].width = MeasureText(npcMessageText[messageCount].c_str(), 20) + 25;
+            npcMessageText[messageCount] = npcMessageText[messageCount];
 
             if (IsKeyPressed(KEY_LEFT))
             {
@@ -353,9 +355,19 @@ int main(void)
             if (IsKeyPressed(KEY_ENTER))
             {
                 //submit option
+                selectedOption = selIndex;
                 selIndex = 0;
                 messageCount++;
 
+            }
+
+            if (selectedOption == -1)
+            {
+                npcChatNumber = 2000;
+            }
+            if (selectedOption == 0)
+            {
+                npcChatNumber = 2004;
             }
 
             if (selIndex >= 2)
@@ -382,11 +394,11 @@ int main(void)
             for (int i = 0; i <= messageCount; i++)
             {
                 npcTextBoxes[i].height = 30;
-                npcTextBoxes[i].width = MeasureText(npcMessage.c_str(), 20) + 25;
+                npcTextBoxes[i].width = MeasureText(npcMessageText[i].c_str(), 20) + 25;
                 npcTextBoxes[i].x = npcIrcX;
                 npcTextBoxes[i].y = npcIrcY;
                 DrawRectangleRec(npcTextBoxes[i], RED);
-                DrawText(npcMessage.c_str(), npcTextBoxes[i].x, npcTextBoxes[i].y, 20, BLACK);
+                DrawText(npcMessageText[i].c_str(), npcTextBoxes[i].x, npcTextBoxes[i].y, 20, BLACK);
                 npcIrcY += 75;
             }
 
@@ -394,7 +406,7 @@ int main(void)
             for (int i = 0; i <= messageCount; i++)
             {
                 userTextBoxes[i].height = 30;
-                userTextBoxes[i].width = MeasureText(npcMessage.c_str(), 20) + 25;
+                userTextBoxes[i].width = MeasureText(npcMessageText[i].c_str(), 20) + 25;
                 userTextBoxes[i].x = userIrcX;
                 userTextBoxes[i].y = userIrcY;
                 DrawRectangleRec(userTextBoxes[i], BLUE);
@@ -403,13 +415,11 @@ int main(void)
             }
 
             //print text in decision box
-            DrawText(IrcMessage(2001).c_str(), DecisionBox[0].x, DecisionBox[0].y, 20, WHITE);
-            DrawText(IrcMessage(2002).c_str(), DecisionBox[1].x, DecisionBox[1].y, 20, WHITE);
-            DrawText(IrcMessage(2003).c_str(), DecisionBox[2].x, DecisionBox[2].y, 20, WHITE);
+            DrawText(IrcMessage(npcChatNumber + 1).c_str(), DecisionBox[0].x, DecisionBox[0].y, 20, WHITE);
+            DrawText(IrcMessage(npcChatNumber + 2).c_str(), DecisionBox[1].x, DecisionBox[1].y, 20, WHITE);
+            DrawText(IrcMessage(npcChatNumber + 3).c_str(), DecisionBox[2].x, DecisionBox[2].y, 20, WHITE);
+
             
-
-
-
             EndDrawing();
         }
     }
@@ -454,6 +464,10 @@ std::string IrcMessage(int message)
     messages[2001] = "I'm sorry... Who?";
     messages[2002] = "Uhh, yeah. I got in...";
     messages[2003] = "<Don't respond>";
+    messages[2004] = "Uhh... Q. Man, we've beed at this for weeks, don't be getting weird on me now..";
+    messages[2005] = "I'm sorry, I just don't remember. Do I know you IRL?";
+    messages[2006] = "Oh, Q! Sorry, yeah, I know now.";
+    messages[2007] = "<Leave on read>";
     
 
     return messages[message];
