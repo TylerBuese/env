@@ -13,7 +13,7 @@ struct Commands
 
     void testCommand(std::string inputText, float x, float y)
     {
-        int sizeOfPing{5};
+        int sizeOfPing{5};  
         int numberOfCommands{2};
         bool foundCommand{false};
         const char commands[50][1000]{
@@ -91,8 +91,7 @@ int main(void)
     bool overText{false};
 
     //irc variables
-    int npcMessageCount{0};
-    int userMessageCount {-1};
+    int messageCount {0};
     int selIndex{0};
     std::string npcMessage[50];
     std::string userMessage[50];
@@ -294,10 +293,6 @@ int main(void)
 
             Rectangle npcTextBoxes[50]{0, 0, 0, 0};
             Rectangle userTextBoxes[50]{0, 0, 0, 0};
-            // npcnpcTextBoxes[0].height = 75;
-            // npcnpcTextBoxes[0].width = 800; //relace with measure text
-            // npcnpcTextBoxes[0].x = 20;
-            // npcTextBoxes[0].y = 20;
             Rectangle InputBox{20, 635, 1240, 75};
             int sizeOfDecisionBox = 3;
             Rectangle DecisionBox[sizeOfDecisionBox]{0, 0, 0, 0};
@@ -322,15 +317,16 @@ int main(void)
             DrawRectangleRec(DecisionBox[2], GRAY);
 
             //select box
-
+            int npcMessageNum {0};
+            
             std::string npcMessage = IrcMessage(2000);
 
             //choose user message
             
             std::string userMessage = IrcMessage(2001 + currentMessageNum);
-            userMessageText[0] = userMessage;
-            npcTextBoxes[0].width = MeasureText(npcMessage.c_str(), 20) + 25;
-            npcMessageText[0] = npcMessage;
+            userMessageText[messageCount] = userMessage;
+            npcTextBoxes[messageCount].width = MeasureText(npcMessage.c_str(), 20) + 25;
+            npcMessageText[messageCount] = npcMessage;
 
             if (IsKeyPressed(KEY_LEFT))
             {
@@ -358,8 +354,7 @@ int main(void)
             {
                 //submit option
                 selIndex = 0;
-                userMessageCount++;
-                npcMessageCount++;
+                messageCount++;
 
             }
 
@@ -384,19 +379,19 @@ int main(void)
             }
 
             //print npc text boxes
-            for (int i = 0; i <= npcMessageCount; i++)
+            for (int i = 0; i <= messageCount; i++)
             {
                 npcTextBoxes[i].height = 30;
                 npcTextBoxes[i].width = MeasureText(npcMessage.c_str(), 20) + 25;
                 npcTextBoxes[i].x = npcIrcX;
                 npcTextBoxes[i].y = npcIrcY;
                 DrawRectangleRec(npcTextBoxes[i], RED);
-                DrawText(npcMessage.c_str(), npcTextBoxes[0].x, npcTextBoxes[0].y, 20, BLACK);
+                DrawText(npcMessage.c_str(), npcTextBoxes[i].x, npcTextBoxes[i].y, 20, BLACK);
                 npcIrcY += 75;
             }
 
             //print player boxes
-            for (int i = 0; i <= userMessageCount; i++)
+            for (int i = 0; i <= messageCount; i++)
             {
                 userTextBoxes[i].height = 30;
                 userTextBoxes[i].width = MeasureText(npcMessage.c_str(), 20) + 25;
