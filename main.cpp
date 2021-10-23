@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "string"
 #include "vector"
+#include "irc.h"
 
 #define MAX_INPUT_CHARS 1024
 bool wordWrap{false};
@@ -13,7 +14,7 @@ struct Commands
 
     void testCommand(std::string inputText, float x, float y)
     {
-        int sizeOfPing{5};  
+        int sizeOfPing{5};
         int numberOfCommands{2};
         bool foundCommand{false};
         const char commands[50][1000]{
@@ -87,24 +88,29 @@ int main(void)
     const char clear[6] = "clear";
     const char enterIRC[4] = "irc";
     bool clearScreen{false};
-    bool inIRC{false};
+    
     bool overText{false};
 
     //irc variables
-    int messageCount {0};
+    int messageCount{0};
     int selIndex{0};
     std::string npcMessage[50];
     std::string userMessage[50];
-    std::string npcMessageText[50];
-    std::string userMessageText[50];
+    std::string npcMessageText[50] {"\0"};
+    std::string oldNpcMessageText[50];
+    std::string userMessageText[50] {"\0"};
+    std::string oldUserMessageText[50];
     bool displayMessage[50]{false};
-    bool level[10]{false};
-    int currentMessageNum {0}; //
-    int userMessageNum {0};
-    int selectedOption {-1};
+    bool level[100]{false};
+    int currentMessageNum{0}; //
+    int userMessageNum{0};
+    int selectedOption{-1};
     int npcChatNumber = 2000;
+    bool start{false};
 
-
+    //game states
+    bool inIRC {false};
+    bool paused {false};
     Rectangle textBox = {10, 10, screenWidth - 20, screenHeight - 20};
     Rectangle OuterBox = {0, 0, screenWidth, screenHeight};
     Rectangle IRCBox = {10, 10, screenWidth - 40, screenHeight - 40};
@@ -112,7 +118,7 @@ int main(void)
 
     int framesCounter = 0;
 
-    SetTargetFPS(30); // Set our game to run at 10 frames-per-second
+    SetTargetFPS(60); // Set our game to run at 10 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -301,7 +307,7 @@ int main(void)
             BeginDrawing();
             ClearBackground(GRAY);
             DrawRectangleRec(InputBox, BLUE);
-            int decBoxWidth {375};
+            int decBoxWidth{375};
             DecisionBox[0].x = 50;
             DecisionBox[0].y = 642;
             DecisionBox[0].width = decBoxWidth;
@@ -319,14 +325,13 @@ int main(void)
             DrawRectangleRec(DecisionBox[2], GRAY);
 
             //select box
-            
+
             //campaign logic?
             if (selectedOption == -1)
             {
                 npcChatNumber = 2000;
             }
-            npcMessageText[messageCount]= IrcMessage(npcChatNumber);
-
+            npcMessageText[messageCount] = IrcMessage(npcChatNumber);
             //choose user message
             std::string userMessage = IrcMessage(npcChatNumber + 1 + currentMessageNum);
             userMessageText[messageCount] = userMessage;
@@ -336,10 +341,9 @@ int main(void)
             {
                 if (selIndex >= 0 && selIndex <= 2)
                 {
-                    selIndex--; 
+                    selIndex--;
                     currentMessageNum = selIndex + userMessageNum;
                 }
-                        
             }
 
             if (IsKeyPressed(KEY_RIGHT))
@@ -349,7 +353,6 @@ int main(void)
                     selIndex++;
                     currentMessageNum = selIndex + userMessageNum;
                 }
-                    
             }
 
             DrawText(std::to_string(currentMessageNum).c_str(), 600, 600, 20, WHITE);
@@ -359,13 +362,26 @@ int main(void)
                 //submit option
                 selectedOption = selIndex;
                 selIndex = 0;
-
+                start = true;
             }
 
-            
-            if (selectedOption == 0)
+            //campign
+            if (start)
             {
-                npcChatNumber = 2004;
+                Irc irc;
+                if (messageCount == 1)
+                {
+                    npcChatNumber = irc.level1(selectedOption);
+                }
+                 if (messageCount == 2)
+                 {
+                     npcChatNumber = irc.level2(selectedOption);
+                 }
+                 if (messageCount == 3)
+                 {
+                     //npcChatNumber = irc.level3(selectedOption);
+                 }
+                
             }
 
             if (selIndex >= 2)
@@ -404,11 +420,11 @@ int main(void)
             for (int i = 0; i <= messageCount; i++)
             {
                 userTextBoxes[i].height = 30;
-                userTextBoxes[i].width = MeasureText(npcMessageText[i].c_str(), 20) + 25;
+                userTextBoxes[i].width = MeasureText(userMessageText[i].c_str(), 20) + 25;
                 userTextBoxes[i].x = userIrcX;
                 userTextBoxes[i].y = userIrcY;
                 DrawRectangleRec(userTextBoxes[i], BLUE);
-                DrawText(userMessageText[i].c_str(), userTextBoxes[i].x, userTextBoxes[i].y, 20, BLACK);
+                DrawText(userMessageText[i].c_str(), userTextBoxes[i].x, userTextBoxes[i].y, 20, LIGHTGRAY);
                 userIrcY += 75;
             }
 
@@ -422,7 +438,6 @@ int main(void)
                 messageCount++;
             }
 
-            
             EndDrawing();
         }
     }
@@ -454,7 +469,7 @@ std::string IrcMessage(int message)
     messages are structured as so;
         - Each message and it's responses are contiguously ordered in an array.
         - So if the message "Hello, you" is stored in array index [0], "Hello to you too", "Hey", and "Howdy!" are [1], [2], and [3]
-            - i.e., messagesArray[4] {"Hello, you", "Hello to you too", "Hey", "Howdy!"};
+            - i.e., messagesArray[3] {"Hello, you", "Hello to you too", "Hey", "Howdy!"};
         -This is done to keep the number of arrays down, and imo is just as managable as maintaining mutiple arrays, since there are multiple responses for each message
     */
     std::string messages[3000]{"\0"};
@@ -464,14 +479,27 @@ std::string IrcMessage(int message)
 
     //tutorial messages
     messages[2000] = "Hey, it's Q. You get in yet? We're dying to see what's in their db.";
-    messages[2001] = "I'm sorry... Who?";
-    messages[2002] = "Uhh, yeah. I got in...";
-    messages[2003] = "<Don't respond>";
+    messages[2001] = "I'm sorry... Who?"; //2000
+    messages[2002] = "Uhh, yeah. I got in..."; //2000
+    messages[2003] = "<Don't respond>"; //2000
     messages[2004] = "Uhh... Q. Man, we've beed at this for weeks, don't be getting weird on me now..";
-    messages[2005] = "I'm sorry, I just don't remember. Do I know you IRL?";
-    messages[2006] = "Oh, Q! Sorry, yeah, I know now.";
-    messages[2007] = "<Leave on read>";
-    
+    messages[2005] = "I'm sorry, I just don't remember. \nDo I know you IRL?"; //2004
+    messages[2006] = "Oh, Q! Yeeah, I remember now."; //2004
+    messages[2007] = "<Leave on read>"; //2004
+    messages[2008] = "YES!!! Dude, I knew you could do it! Are you seeding those docs yet?";
+    messages[2009] = "Nope, no seeding yet"; //2008
+    messages[2010] = "Of course, i'll send the address in the group"; //2008
+    messages[2011] = "No... I won't be either."; //2008
+    messages[2012] = "Hello..? Anyone there?";
+    messages[2013] = "Yeah I'm here, sorry I was AFK";
+    messages[2014] = "No, no one's home lol";
+    messages[2015] = "<Leave on read>";
+    messages[2016] = "No, you don't.. Hey, if you don't wanna do this just let me know, I can get someone else.";
+    messages[2017] = "No no no, I'm just kidding. I got in."; //2016
+    messages[2018] = "Oh yeah I do! You're the string bean lookin' fella!"; //2016
+    messages[2019] = "Get someone else? I think you're talking to the wrong guy"; //2016
+
+
 
     return messages[message];
 }
