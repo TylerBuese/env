@@ -2,34 +2,32 @@
 #include "string"
 #include "vector"
 #include "irc.h"
-
 #define MAX_INPUT_CHARS 1024
-bool wordWrap{false};
+
+//Global variables
 std::string IrcMessage(int Message);
 struct Commands
 {
-    void ping()
-    {
-    }
-
     void testCommand(std::string inputText, float x, float y)
     {
-        int sizeOfPing{5};
         int numberOfCommands{2};
-        bool foundCommand{false};
         const char commands[50][1000]{
             "ping",
-            ""};
+            "ipconfig"};
         std::string pingString = &commands[0][0]; //ping
 
         for (int i = 0; i < numberOfCommands; i++) //loops through all commands, if it finds one, executes
         {
             /*start commands*/
             std::string ping = &commands[0][0]; //ping command
+            std::string ipconfig = &commands[1][0];
             /*end commands*/
             if (inputText == ping)
             {
                 DrawText("Pinging...", x, y, 30, MAROON);
+            } else if (inputText == ipconfig)
+            {
+                DrawText("Current IP: 10.10.0.9", x, y, 30, MAROON);
             }
             else
             {
@@ -56,14 +54,9 @@ struct Commands
                 }
                 DrawText(&copyErrorText[j], x, y + 20, 20, MAROON);
                 DrawText(errorText.c_str(), x, y, 20, MAROON);
-                wordWrap = false;
             }
         }
     }
-};
-
-struct Upgrades
-{
 };
 
 int main(void)
@@ -82,7 +75,6 @@ int main(void)
     int index{0};
     int x = 0;
     int y = 0;
-    char test[5] = "test";
 
     //screen altering functions
     const char clear[6] = "clear";
@@ -233,7 +225,6 @@ int main(void)
                 letterCount = 0;
                 index++;
             }
-            std::string testString = &test[0];
             Commands command;
             for (int i = 0; i < index; i++)
             {
@@ -265,7 +256,6 @@ int main(void)
                 {
                     // Draw blinking underscore char
                     if (((framesCounter / 20) % 2) == 0)
-
                         DrawText(">", 20, 670, 40, MAROON);
                 }
                 else
